@@ -21,11 +21,20 @@ ListsPanel::ListsPanel(QWidget* parent)
 
     connect(ui->newListButton, &QPushButton::clicked, this, &ListsPanel::showNewListDialog);
 
-    connect(ui->listView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=, this](const QModelIndex& current, const QModelIndex&) {
-        auto record = m_listsModel->record(current.row());
-        // auto field = record.field(u"id"_s);
-        emit listSelected(record);
-    });
+    connect(ui->listView->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
+        [=, this](const QModelIndex& current, const QModelIndex&) {
+            qInfo() << "selectionModel currentRowchanged";
+            auto record = m_listsModel->record(current.row());
+            emit listSelected(record);
+        });
+
+    connect(ui->listView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+        [this](const QItemSelection& selected, const QItemSelection& /*deselected*/) {
+            if (selected.isEmpty()) {
+                qInfo() << "selected is empty";
+                emit listSelected(QSqlRecord {});
+            }
+        });
 }
 
 ListsPanel::~ListsPanel()

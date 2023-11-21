@@ -18,15 +18,26 @@ ItemsPanel::ItemsPanel(QWidget* parent)
     ui->setupUi(this);
     ui->newItemButton->setHidden(true);
     m_itemsModel->setTable("todo_items");
-    m_itemsModel->setFilter(u"list_id = -1"_s);
+    m_itemsModel->setEditStrategy(QSqlTableModel::OnFieldChange);
+    // m_itemsModel->setFilter(u"list_id = -1"_s);
     m_itemsModel->select();
 
-    ui->listView->setModel(m_itemsModel);
-    ui->listView->setModelColumn(m_itemsModel->fieldIndex(u"name"_s));
+    ui->tableView->setModel(m_itemsModel);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->verticalHeader()->hide();
+    ui->tableView->hideColumn(m_itemsModel->fieldIndex(u"id"_s));
+    ui->tableView->hideColumn(m_itemsModel->fieldIndex(u"list_id"_s));
+    ui->tableView->hideColumn(m_itemsModel->fieldIndex(u"completed"_s));
 
     connect(ui->newItemButton, &QToolButton::clicked, this, &ItemsPanel::showNewItemDialog);
 
     connect(this, &ItemsPanel::recordChanged, this, [this](const QSqlRecord& record) {
+        if (record.isEmpty()) {
+            ui->listLabel->setText(u""_s);
+            ui->newItemButton->setHidden(true);
+            m_itemsModel->setFilter(QString {});
+            return;
+        }
         auto idField = record.field(u"id"_s);
         auto nameField = record.field(u"name"_s);
         ui->listLabel->setText(nameField.value().toString());

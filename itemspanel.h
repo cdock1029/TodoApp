@@ -1,5 +1,6 @@
 #pragma once
 
+#include "items_table_model.hpp"
 #include <QFrame>
 #include <QSqlRecord>
 #include <QSqlTableModel>
@@ -12,7 +13,8 @@ class ItemsPanel : public QFrame { // NOLINT(*-special-member-functions)
     Q_OBJECT
 
     Ui::ItemsPanel* ui;
-    QSqlTableModel* m_itemsModel { new QSqlTableModel { this } };
+    // QSqlTableModel* m_itemsModel { new QSqlTableModel { this } };
+    ItemsTableModel* m_itemsModel { new ItemsTableModel { this } };
     QSqlRecord m_listRecord;
 
 signals:
